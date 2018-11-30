@@ -21,7 +21,13 @@ io.on('connection', (socket) => {
     })
 
     socket.on('createMessage', function (createdMessage) {
-        console.log('createMessage', createdMessage)
+        console.log('createMessage', createdMessage);
+
+        io.emit('newMessage', {
+            from: createdMessage.from,
+            text: createdMessage.text,
+            createdAt: new Date().getTime()
+        })
     })
     
     socket.on('disconnect', () => {
