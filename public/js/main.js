@@ -21,7 +21,7 @@ socket.on('newLocationMessage', function (newMessage) {
     let li = $('<li></li>');
     let a = $('<a target="_blank">My current location</a>');
 
-    li.text(`${newMessage.from}: `);
+    li.text('Admin: ');
     a.attr('href', newMessage.url);
     li.append(a);
     $('#messages').append(li);
@@ -30,12 +30,13 @@ socket.on('newLocationMessage', function (newMessage) {
 $('#message-form').on('submit', function (e) {
     e.preventDefault();
 
+    let messageText = $('[name = message]')
+
     socket.emit('createMessage', {
-        from: $('[name = from]').val(),
-        text: $('[name = message]').val()
+        from: 'User',
+        text: messageText.val()
     }, function (data) {
-        console.log('Got it', data);
-        // resultPar.innerHTML = '<b>Got it.</b> <br>Message from server: <b>' + data + '</b>';
+        messageText.val('')
     })
 })
 
@@ -46,14 +47,18 @@ locationButton.on('click', function () {
     if(!navigator.geolocation) {
         return alert('Geolocation is not supported by your browser.');
     }
+    locationButton.attr('disabled', 'disabled').text('Sending location...');
 
     //If they have access, then fetch their location
     navigator.geolocation.getCurrentPosition(function (position) {
+        locationButton.removeAttr('disabled').text('Send location');
         socket.emit('createLocationMessage', {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
         });
     }, function () {
+        locationButton.removeAttr('disabled').text('Send location');
+
         //Run if user for example not allowed to share his location in alert in browser
         alert('Unable to fetch location.')
     })
