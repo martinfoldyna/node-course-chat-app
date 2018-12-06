@@ -18,11 +18,31 @@ function scrollToBottom() {
 }
 
 socket.on('connect', function () {
-    console.log('Connected to server');
+    let params = JSON.parse(sessionStorage.getItem('user'));
+    console.log(params.name)
+
+    socket.emit('join', params, function (error) {
+        if(error) {
+            alert(error);
+            window.location.href = "/";
+        } else {
+            console.log('No error');
+        }
+    })
 });
 
 socket.on('disconnect', function () {
     console.log('Disconnected from server');
+})
+
+socket.on('updateUserList', function (users) {
+    let ol = $('<ol></ol>');
+
+    users.forEach(function (user) {
+        ol.append($('<li></li>').text(user))
+
+    });
+    $('#users').html(ol)
 })
 
 socket.on('newMessage', function (newMessage) {
@@ -86,4 +106,9 @@ locationButton.on('click', function () {
         //Run if user for example not allowed to share his location in alert in browser
         alert('Unable to fetch location.')
     })
+});
+
+$('#logout').on('click', function () {
+    sessionStorage.removeItem('user');
+    window.location.href = '/';
 })
